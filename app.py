@@ -435,6 +435,33 @@ def format_overdue_telegram_message(order: dict) -> str:
     )
 
 
+def format_new_order_telegram_message(
+    customer_name: str,
+    phone: str,
+    address: str,
+    cart_items: list[dict],
+    total_collected: float,
+) -> str:
+    if len(cart_items) == 1:
+        product_name = cart_items[0]["name"]
+        quantity = cart_items[0]["quantity"]
+    else:
+        product_name = ", ".join(
+            f"{item['name']} ×{item['quantity']}" for item in cart_items
+        )
+        quantity = sum(item["quantity"] for item in cart_items)
+
+    return (
+        "🔔 <b>ახალი შეკვეთა გაფორმდა!</b>\n"
+        f"👤 <b>კლიენტი:</b> {_display_field(customer_name)}\n"
+        f"📞 <b>მობილური:</b> {_display_field(phone)}\n"
+        f"🏠 <b>მისამართი:</b> {_display_field(address)}\n"
+        f"📦 <b>პროდუქტი:</b> {_display_field(product_name)}\n"
+        f"🔢 <b>რაოდენობა:</b> {quantity}\n"
+        f"💰 <b>გადასახდელი თანხა:</b> {total_collected:,.2f} ₾"
+    )
+
+
 def order_collected_amount(order: dict) -> float:
     if order.get("total_collected"):
         return float(order["total_collected"])
@@ -1324,12 +1351,22 @@ def create_new_order_dialog():
                     st.error("გთხოვთ, შეავსოთ ყველა სავალდებულო ველი.")
                 else:
                     try:
+                        cart_snapshot = list(st.session_state.cart_items)
                         order_id = db.create_order(
                             customer_name.strip(),
                             phone.strip(),
                             address.strip(),
-                            st.session_state.cart_items,
+                            cart_snapshot,
                             actual_delivery_cost=float(actual_delivery_cost),
+                        )
+                        send_telegram_message(
+                            format_new_order_telegram_message(
+                                customer_name.strip(),
+                                phone.strip(),
+                                address.strip(),
+                                cart_snapshot,
+                                totals["total_collected"],
+                            )
                         )
                         st.session_state.cart_items = []
                         _dismiss_new_order_dialog()
