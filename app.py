@@ -561,7 +561,7 @@ def build_orders_rows(orders: list[dict]) -> list[dict]:
                 "მომხმარებელი": o["customer_name"],
                 "პროდუქტები": product_names,
                 "თანხა": format_currency(order_collected_amount(o)),
-                "Net Revenue": format_currency(o.get("net_product_revenue") or 0),
+                "მოგება": format_currency(o.get("net_product_revenue") or 0),
                 "სტატუსი": o["status"],
                 "გადახდა": o["payment_status"],
                 "თარიღი": o["created_at"][:10],
@@ -609,7 +609,7 @@ def render_order_summary(totals: dict):
         )
         st.divider()
         st.metric(
-            label="პროდუქტის რეალური გასაყიდი ფასი (Net Revenue)",
+            label="პროდუქტის რეალური გასაყიდი ფასი (მოგება)",
             value=format_currency(totals["net_product_revenue"]),
         )
 
@@ -1127,7 +1127,7 @@ def build_active_orders_df(orders: list[dict]) -> pd.DataFrame:
                 "ტელეფონი": o["phone"],
                 "პროდუქტები": product_names,
                 "თანხა": format_currency(order_collected_amount(o)),
-                "Net Revenue": format_currency(o.get("net_product_revenue") or 0),
+                "მოგება": format_currency(o.get("net_product_revenue") or 0),
                 "სტატუსი": o["status"],
                 "გადახდა": o["payment_status"],
                 "თარიღი": o["created_at"][:10],
@@ -1170,7 +1170,7 @@ def build_deleted_archive_rows(orders: list[dict]) -> list[dict]:
                 "მისამართი": o["address"],
                 "პროდუქტები": product_names,
                 "გადასახდელი": format_currency(order_collected_amount(o)),
-                "Net Revenue": format_currency(o.get("net_product_revenue") or 0),
+                "მოგება": format_currency(o.get("net_product_revenue") or 0),
                 "ფასდაკლება": format_currency(o.get("total_discount") or 0),
                 "კურიერი": format_currency(o.get("actual_delivery_cost") or 0),
                 "სტატუსი": o["status"],
@@ -1195,7 +1195,7 @@ def render_selected_order_details(order: dict):
         st.write("ტელეფონი", order["phone"])
         st.write("მისამართი", order["address"])
         st.metric("კლიენტის გადასახდელი", format_currency(collected))
-        st.metric("Net Revenue", format_currency(net_revenue))
+        st.metric("მოგება", format_currency(net_revenue))
     with info_right:
         st.write("პროდუქტები", product_summary)
         st.write("თარიღი", order["created_at"][:16])
