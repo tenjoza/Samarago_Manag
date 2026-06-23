@@ -514,56 +514,144 @@ def delete_order(order_id: int):
         )
 
 
-def get_dashboard_metrics() -> dict:
+_NET_REVENUE_SQL = """
+    CASE
+        WHEN net_product_revenue > 0 THEN net_product_revenue
+        ELSE total_amount - COALESCE(actual_delivery_cost, delivery_fee, 0)
+    END
+"""
+
+_ACTIVE_ORDER_SQL = """
+    is_deleted = 0
+    AND status != 'გაუქმებული'
+    AND NOT (
+        payment_status = 'გადახდილი'
+        AND status IN ('მიწოდებული', 'ჩაბარდა')
+    )
+"""
+
+_PERIOD_FILTER_SQL = " AND created_at >= ? AND created_at < ?"
+
+
+def get_dashboard_period_bounds(
+    period: str,
+    *,
+    month: int | None = None,
+    year: int | None = None,
+) -> tuple[datetime, datetime]:
+    """Return [start, end) bounds for dashboard period filters."""
+    now = datetime.now()
+    if year is None:
+        year = now.year
+
+    if period == "კვირა":
+        start = (now - timedelta(days=now.weekday())).replace(
+            hour=0, minute=0, second=0, microsecond=0
+        )
+        end = start + timedelta(days=7)
+    elif period == "თვე":
+        selected_month = month or now.month
+        start = datetime(year, selected_month, 1)
+        if selected_month == 12:
+            end = datetime(year + 1, 1, 1)
+        else:
+            end = datetime(year, selected_month + 1, 1)
+    elif period == "წელი":
+        start = datetime(year, 1, 1)
+        end = datetime(year + 1, 1, 1)
+    else:
+        raise ValueError(f"Unknown dashboard period: {period}")
+
+    return start, end
+
+
+def filter_orders_by_period(
+    orders: list[dict],
+    period_start: datetime,
+    period_end: datetime,
+) -> list[dict]:
+    filtered = []
+    for order in orders:
+        created_at = parse_order_timestamp(order["created_at"])
+        if period_start <= created_at < period_end:
+            filtered.append(order)
+    return filtered
+
+
+def get_dashboard_metrics(
+    period_start: datetime,
+    period_end: datetime,
+) -> dict:
+    start_iso = period_start.isoformat(timespec="seconds")
+    end_iso = period_end.isoformat(timespec="seconds")
+    period_params = (start_iso, end_iso)
+
     with get_connection() as conn:
-        sales_row = conn.execute(
-            """
-            SELECT COALESCE(SUM(
-                CASE WHEN total_collected > 0 THEN total_collected ELSE total_amount END
-            ), 0) AS total_sales
+        paid_row = conn.execute(
+            f"""
+            SELECT COALESCE(SUM({_NET_REVENUE_SQL}), 0) AS paid_revenue
             FROM orders
-            WHERE is_deleted = 0 AND status != 'გაუქმებული'
-            """
+            WHERE is_deleted = 0
+              AND status != 'გაუქმებული'
+              AND payment_status = 'გადახდილი'
+              {_PERIOD_FILTER_SQL}
+            """,
+            period_params,
+        ).fetchone()
+
+        pending_revenue_row = conn.execute(
+            f"""
+            SELECT COALESCE(SUM({_NET_REVENUE_SQL}), 0) AS pending_revenue
+            FROM orders
+            WHERE {_ACTIVE_ORDER_SQL}
+              AND payment_status = 'გადაუხდელი'
+              {_PERIOD_FILTER_SQL}
+            """,
+            period_params,
         ).fetchone()
 
         profit_row = conn.execute(
-            """
+            f"""
             SELECT COALESCE(SUM(
-                CASE
-                    WHEN o.net_product_revenue > 0 THEN o.net_product_revenue
-                    ELSE o.total_amount - COALESCE(o.actual_delivery_cost, o.delivery_fee, 0)
-                END
+                {_NET_REVENUE_SQL}
                 - (
                     SELECT COALESCE(SUM(oi.unit_cost * oi.quantity), 0)
                     FROM order_items oi
-                    WHERE oi.order_id = o.id
+                    WHERE oi.order_id = orders.id
                 )
             ), 0) AS total_profit
-            FROM orders o
-            WHERE o.is_deleted = 0 AND o.status != 'გაუქმებული'
-            """
+            FROM orders
+            WHERE is_deleted = 0 AND status != 'გაუქმებული'
+              {_PERIOD_FILTER_SQL}
+            """,
+            period_params,
         ).fetchone()
 
         pending_row = conn.execute(
-            """
+            f"""
             SELECT COUNT(*) AS count
             FROM orders
             WHERE is_deleted = 0 AND status IN ('ახალი', 'გაგზავნილი')
-            """
+              {_PERIOD_FILTER_SQL}
+            """,
+            period_params,
         ).fetchone()
 
         unpaid_row = conn.execute(
-            """
+            f"""
             SELECT COUNT(*) AS count
             FROM orders
             WHERE is_deleted = 0
               AND payment_status = 'გადაუხდელი'
               AND status != 'გაუქმებული'
-            """
+              {_PERIOD_FILTER_SQL}
+            """,
+            period_params,
         ).fetchone()
 
         return {
-            "total_sales": sales_row["total_sales"],
+            "paid_revenue": paid_row["paid_revenue"],
+            "pending_revenue": pending_revenue_row["pending_revenue"],
             "total_profit": profit_row["total_profit"],
             "pending_orders": pending_row["count"],
             "unpaid_orders": unpaid_row["count"],

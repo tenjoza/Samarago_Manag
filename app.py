@@ -17,60 +17,339 @@ CHAT_ID = "-5525866790"
 LOGO_PATH = Path(__file__).parent / "logo.png"
 
 st.set_page_config(
-    page_title="Samarago გაყიდვები",
-    page_icon="🛍️",
+    page_title="Samarago",
+    page_icon="logo.png",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
 CUSTOM_CSS = """
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600;700&display=swap');
-    html, body, [class*="css"] { font-family: 'Noto Sans Georgian', sans-serif; }
-    .block-container { padding-top: 2rem; max-width: 1200px; }
-    div[data-testid="stTabs"] button { font-weight: 600; font-size: 0.95rem; }
-    div[data-testid="stRadio"] > div {
-        gap: 0.5rem;
-        margin-bottom: 1rem;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Georgian:wght@400;500;600;700&display=swap');
+
+    :root {
+        --samarago-orange: #FF8C00;
+        --samarago-orange-dark: #E67E00;
+        --samarago-orange-light: #FFF4E6;
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --glass-bg: rgba(255, 255, 255, 0.78);
+        --glass-border: rgba(255, 255, 255, 0.65);
+        --glass-radius: 15px;
+        --glass-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    div[data-testid="stRadio"] label {
-        background: #f1f5f9;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 0.45rem 1rem;
-        font-weight: 600;
+
+    html, body, [class*="css"] {
+        font-family: 'Inter', 'Noto Sans Georgian', sans-serif;
     }
-    div[data-testid="stRadio"] label:hover {
-        background: #e2e8f0;
+
+    #MainMenu, footer, header[data-testid="stHeader"] {
+        visibility: hidden;
     }
-    .brand-title {
-        font-size: 1.75rem;
+
+    .stApp {
+        background: linear-gradient(145deg, #eef2f7 0%, #f8fafc 45%, #fff8ef 100%);
+    }
+
+    section[data-testid="stMain"] > div.block-container {
+        background: transparent;
+        box-shadow: none;
+        border: none;
+        padding: 0.5rem 1rem 1.25rem;
+        max-width: 1200px;
+    }
+
+    div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: var(--glass-bg);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-radius: var(--glass-radius);
+        box-shadow: var(--glass-shadow);
+        border: 1px solid var(--glass-border);
+        padding: 0.85rem 1rem 1rem;
+        margin-bottom: 0.75rem;
+        overflow: visible;
+    }
+
+    .section-card-title {
+        font-size: 1.2rem;
         font-weight: 700;
-        color: #0f172a;
+        color: var(--text-primary);
+        margin: 0 0 0.65rem 0;
+        padding-bottom: 0.45rem;
+        border-bottom: 2px solid var(--samarago-orange-light);
+    }
+
+    h1, h2, h3 {
+        color: var(--text-primary);
+        letter-spacing: -0.01em;
+    }
+
+    h2, [data-testid="stMarkdownContainer"] h2 {
+        font-size: 1.35rem !important;
+        font-weight: 700 !important;
+        margin-bottom: 0.4rem !important;
+    }
+
+    hr {
+        display: none;
+    }
+
+    div[data-testid="stTabs"] {
+        background: var(--glass-bg);
+        backdrop-filter: blur(12px);
+        border-radius: var(--glass-radius);
+        box-shadow: var(--glass-shadow);
+        border: 1px solid var(--glass-border);
+        padding: 0.35rem 0.5rem 0.75rem;
+    }
+
+    div[data-testid="stTabs"] [role="tablist"] {
+        justify-content: center;
+        gap: 0.35rem;
+        flex-wrap: wrap;
+    }
+
+    div[data-testid="stTabs"] button {
+        font-weight: 600;
+        font-size: 0.92rem;
+        min-height: 44px;
+        padding: 0.5rem 0.75rem;
+        border-radius: 10px;
+    }
+
+    div[data-testid="stTabs"] button[aria-selected="true"] {
+        color: var(--samarago-orange) !important;
+        border-bottom-color: var(--samarago-orange) !important;
+        background: var(--samarago-orange-light);
+    }
+
+    div[data-testid="stVerticalBlockBorderWrapper"]:has([data-testid="stSegmentedControl"])
+    [data-testid="stSegmentedControl"] {
+        width: 100%;
+        justify-content: center;
+    }
+
+    div[data-testid="stVerticalBlockBorderWrapper"]:has([data-testid="stSegmentedControl"])
+    [data-testid="stSegmentedControl"] button {
+        font-weight: 600;
+        font-size: 0.92rem;
+        min-height: 44px;
+        flex: 1;
+    }
+
+    .stButton > button {
+        min-height: 44px;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-weight: 600;
+        padding: 0.55rem 1rem;
+    }
+
+    .stButton > button[kind="primary"],
+    .stButton > button[data-testid="stBaseButton-primary"] {
+        background-color: var(--samarago-orange) !important;
+        border-color: var(--samarago-orange) !important;
+        color: #ffffff !important;
+        box-shadow: 0 4px 10px rgba(255, 140, 0, 0.28);
+    }
+
+    .stButton > button[kind="primary"]:hover,
+    .stButton > button[data-testid="stBaseButton-primary"]:hover {
+        background-color: var(--samarago-orange-dark) !important;
+        border-color: var(--samarago-orange-dark) !important;
+    }
+
+    .stTextInput input,
+    .stNumberInput input,
+    .stTextArea textarea,
+    div[data-baseweb="select"] > div {
+        min-height: 44px;
+        font-size: 1rem;
+        border-radius: 12px !important;
+        background: #ffffff !important;
+    }
+
+    .stTextArea textarea {
+        min-height: 96px;
+        padding: 0.7rem 0.8rem;
+    }
+
+    div[data-testid="stMetric"] {
+        background: rgba(255, 255, 255, 0.92);
+        border: 1px solid #e8edf3;
+        border-radius: var(--glass-radius);
+        padding: 0.7rem 0.9rem;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Table chrome only — height is set per widget via the dynamic height helper */
+    [data-testid="stDataFrame"],
+    [data-testid="stDataFrameResizable"],
+    div[data-testid="stDataEditor"],
+    div[data-testid="stTable"] {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: var(--glass-radius);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    }
+
+    .table-page-label {
+        text-align: center;
+        margin: 0.45rem 0 0;
+        font-weight: 600;
+        color: var(--text-secondary);
+        font-size: 0.92rem;
+    }
+
+    div[data-testid="stAlert"] {
+        border-radius: var(--glass-radius);
+        margin-bottom: 0.45rem;
+    }
+
+    div[data-testid="stExpander"] {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: var(--glass-radius);
+        border: 1px solid #e2e8f0;
+        box-shadow: var(--glass-shadow);
+    }
+
+    /* Colored order-status pills inside order details */
+    div[data-testid="stExpanderDetails"] [data-testid="stPills"] button {
+        border-radius: 999px !important;
+        font-weight: 600 !important;
+        min-height: 40px !important;
+        border: 2px solid transparent !important;
+    }
+
+    div[data-testid="stExpanderDetails"] [data-testid="stPills"] button[aria-pressed="true"] {
+        border-color: var(--samarago-orange) !important;
+        box-shadow: 0 2px 8px rgba(255, 140, 0, 0.28) !important;
+    }
+
+    div[data-testid="stExpanderDetails"] div[data-testid="stHorizontalBlock"]:last-of-type > div[data-testid="column"]:nth-child(1) [data-testid="stPills"] button:nth-child(1) {
+        background-color: #fef08a !important;
+        color: #854d0e !important;
+    }
+
+    div[data-testid="stExpanderDetails"] div[data-testid="stHorizontalBlock"]:last-of-type > div[data-testid="column"]:nth-child(1) [data-testid="stPills"] button:nth-child(2) {
+        background-color: #bfdbfe !important;
+        color: #1e40af !important;
+    }
+
+    div[data-testid="stExpanderDetails"] div[data-testid="stHorizontalBlock"]:last-of-type > div[data-testid="column"]:nth-child(1) [data-testid="stPills"] button:nth-child(3) {
+        background-color: #bbf7d0 !important;
+        color: #166534 !important;
+    }
+
+    div[data-testid="stExpanderDetails"] div[data-testid="stHorizontalBlock"]:last-of-type > div[data-testid="column"]:nth-child(1) [data-testid="stPills"] button:nth-child(4) {
+        background-color: #fecaca !important;
+        color: #b91c1c !important;
+    }
+
+    div[data-testid="stExpanderDetails"] div[data-testid="stHorizontalBlock"]:last-of-type > div[data-testid="column"]:nth-child(2) [data-testid="stPills"] button:nth-child(1) {
+        background-color: #fecaca !important;
+        color: #b91c1c !important;
+    }
+
+    div[data-testid="stExpanderDetails"] div[data-testid="stHorizontalBlock"]:last-of-type > div[data-testid="column"]:nth-child(2) [data-testid="stPills"] button:nth-child(2) {
+        background-color: #bbf7d0 !important;
+        color: #166534 !important;
+    }
+
+    .brand-title {
+        font-size: 1.85rem;
+        font-weight: 700;
+        color: var(--samarago-orange);
         margin: 0;
         line-height: 1.2;
     }
+
     .brand-subtitle {
         font-size: 1rem;
         font-weight: 600;
-        color: #334155;
-        margin: 0.15rem 0 0.35rem 0;
+        color: var(--text-secondary);
+        margin: 0.15rem 0 0.2rem 0;
     }
+
     .brand-caption {
         font-size: 0.9rem;
-        color: #64748b;
+        color: var(--text-muted);
         margin: 0;
+    }
+
+    div[data-testid="stVerticalBlockBorderWrapper"]:has(.brand-title) [data-testid="stImage"] img {
+        border-radius: 12px;
+    }
+
+    @media (max-width: 768px) {
+        section[data-testid="stSidebar"] {
+            display: none !important;
+        }
+
+        section[data-testid="stMain"] > div.block-container {
+            padding: 0.35rem 0.65rem 0.85rem;
+        }
+
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.brand-title) [data-testid="stHorizontalBlock"] {
+            flex-direction: column !important;
+            align-items: center !important;
+            text-align: center;
+        }
+
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.brand-title) [data-testid="stImage"] img {
+            max-width: 168px;
+            margin: 0 auto;
+        }
+
+        div[data-testid="stVerticalBlockBorderWrapper"]:has(.brand-title) .brand-title {
+            font-size: 1.55rem;
+        }
+
+        .stButton > button {
+            width: 100%;
+        }
+
+        div[data-testid="stTabs"] button {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.45rem;
+        }
+
+        div[data-testid="column"] {
+            min-width: 0;
+        }
     }
 </style>
 """
 
 db.init_db()
 
+
+def section_title(text: str):
+    st.markdown(f'<p class="section-card-title">{text}</p>', unsafe_allow_html=True)
+
 TAB_OPTIONS = ["დაფა", "პროდუქტები", "შეკვეთები"]
 TAB_LABELS = {
     "დაფა": "📊 დაფა",
     "პროდუქტები": "📦 პროდუქტები",
     "შეკვეთები": "🛒 შეკვეთები",
+}
+
+DASHBOARD_PERIOD_OPTIONS = ("კვირა", "თვე", "წელი")
+GEORGIAN_MONTHS = {
+    1: "იანვარი",
+    2: "თებერვალი",
+    3: "მარტი",
+    4: "აპრილი",
+    5: "მაისი",
+    6: "ივნისი",
+    7: "ივლისი",
+    8: "აგვისტო",
+    9: "სექტემბერი",
+    10: "ოქტომბერი",
+    11: "ნოემბერი",
+    12: "დეკემბერი",
 }
 
 ORDER_STATUS_COLORS = {
@@ -97,6 +376,19 @@ ORDER_BADGE_COLOR = {
 PAYMENT_BADGE_COLOR = {
     "გადახდილი": "green",
     "გადაუხდელი": "red",
+}
+
+ORDER_STATUS_PILL_LABELS = {
+    "ახალი": "🟡 ახალი",
+    "გაგზავნილი": "🔵 გაგზავნილი",
+    "მიწოდებული": "🟢 მიწოდებული",
+    "ჩაბარდა": "🟢 ჩაბარდა",
+    "გაუქმებული": "🔴 გაუქმებული",
+}
+
+PAYMENT_STATUS_PILL_LABELS = {
+    "გადაუხდელი": "🔴 გადაუხდელი",
+    "გადახდილი": "🟢 გადახდილი",
 }
 
 
@@ -212,6 +504,24 @@ def style_active_orders_dataframe(df: pd.DataFrame):
     return styled
 
 
+def orders_table_column_config() -> dict:
+    """Width hints only — conditional cell colors come from pandas Styler."""
+    return {
+        "სტატუსი": st.column_config.Column("სტატუსი", width="small"),
+        "გადახდა": st.column_config.Column("გადახდა", width="small"),
+    }
+
+
+def products_table_column_config() -> dict:
+    return {
+        "ფასი (₾)": st.column_config.NumberColumn("ფასი (₾)", format="%.2f"),
+        "თვითღირებულება (₾)": st.column_config.NumberColumn(
+            "თვითღირებულება (₾)", format="%.2f"
+        ),
+        "ნაშთი": st.column_config.NumberColumn("ნაშთი", format="%d"),
+    }
+
+
 def build_orders_rows(orders: list[dict]) -> list[dict]:
     rows = []
     for o in orders:
@@ -250,8 +560,8 @@ def _summary_row(label: str, value: str):
 
 
 def render_order_summary(totals: dict):
-    st.subheader("შეკვეთის შეჯამება")
     with st.container(border=True):
+        section_title("შეკვეთის შეჯამება")
         if totals["total_discount"] > 0:
             _summary_row(
                 "პროდუქტების ბაზის ფასის ჯამი",
@@ -288,6 +598,80 @@ def render_order_card_header(order: dict, collected: float):
         show_status_badge(order["status"])
     with payment_col:
         show_payment_badge(order["payment_status"])
+
+
+def _on_order_status_pill_change(order_id: int):
+    key = f"order_status_pills_{order_id}"
+    new_status = st.session_state.get(key)
+    if not new_status:
+        return
+
+    order = db.get_order_by_id(order_id)
+    if not order or new_status == order["status"]:
+        return
+
+    try:
+        db.update_order_status(order_id, new_status)
+        st.toast("სტატუსი განახლდა", icon="✅")
+        st.rerun()
+    except ValueError as e:
+        st.error(str(e))
+
+
+def _on_payment_status_pill_change(order_id: int):
+    key = f"order_payment_pills_{order_id}"
+    new_payment = st.session_state.get(key)
+    if not new_payment:
+        return
+
+    order = db.get_order_by_id(order_id)
+    if not order or new_payment == order["payment_status"]:
+        return
+
+    try:
+        db.update_payment_status(order_id, new_payment)
+        st.toast("გადახდის სტატუსი განახლდა", icon="✅")
+        st.rerun()
+    except ValueError as e:
+        st.error(str(e))
+
+
+def render_order_status_pills(order: dict):
+    order_id = int(order["id"])
+    status_key = f"order_status_pills_{order_id}"
+    if status_key not in st.session_state:
+        st.session_state[status_key] = order["status"]
+
+    st.pills(
+        "სტატუსი",
+        options=db.ORDER_STATUSES,
+        default=order["status"],
+        format_func=lambda status: ORDER_STATUS_PILL_LABELS.get(status, status),
+        label_visibility="visible",
+        width="stretch",
+        key=status_key,
+        on_change=_on_order_status_pill_change,
+        kwargs={"order_id": order_id},
+    )
+
+
+def render_payment_status_pills(order: dict):
+    order_id = int(order["id"])
+    payment_key = f"order_payment_pills_{order_id}"
+    if payment_key not in st.session_state:
+        st.session_state[payment_key] = order["payment_status"]
+
+    st.pills(
+        "გადახდა",
+        options=db.PAYMENT_STATUSES,
+        default=order["payment_status"],
+        format_func=lambda status: PAYMENT_STATUS_PILL_LABELS.get(status, status),
+        label_visibility="visible",
+        width="stretch",
+        key=payment_key,
+        on_change=_on_payment_status_pill_change,
+        kwargs={"order_id": order_id},
+    )
 
 
 @st.dialog("წაშლის დადასტურება")
@@ -412,6 +796,88 @@ def _dismiss_new_product_dialog():
 
 PRODUCTS_TABLE_KEY = "products_table"
 LOW_STOCK_THRESHOLD = 10
+TABLE_PAGE_SIZE = 10
+TABLE_ROW_HEIGHT_PX = 35
+TABLE_MAX_HEIGHT_PX = 350
+
+
+def table_height(df: pd.DataFrame) -> int:
+    """Grow with row count up to 10 rows (350px), then cap."""
+    return min((len(df) + 1) * TABLE_ROW_HEIGHT_PX, TABLE_MAX_HEIGHT_PX)
+
+
+def paginate_df(df: pd.DataFrame, page_key: str) -> tuple[pd.DataFrame, int, int]:
+    total_rows = len(df)
+    total_pages = max(1, (total_rows + TABLE_PAGE_SIZE - 1) // TABLE_PAGE_SIZE)
+    page = st.session_state.get(page_key, 0)
+    page = max(0, min(int(page), total_pages - 1))
+    st.session_state[page_key] = page
+    start = page * TABLE_PAGE_SIZE
+    end = start + TABLE_PAGE_SIZE
+    return df.iloc[start:end].copy(), page, total_pages
+
+
+def render_table_pagination(page_key: str, page: int, total_pages: int, total_rows: int):
+    if total_rows <= TABLE_PAGE_SIZE:
+        return
+
+    _, center, _ = st.columns([1, 2, 1])
+    with center:
+        prev_col, label_col, next_col = st.columns([1, 1.2, 1])
+        with prev_col:
+            if st.button(
+                "◀ წინა",
+                key=f"{page_key}_prev",
+                disabled=page == 0,
+                use_container_width=True,
+            ):
+                st.session_state[page_key] = page - 1
+                st.rerun()
+        with label_col:
+            st.markdown(
+                f'<p class="table-page-label">{page + 1} / {total_pages}</p>',
+                unsafe_allow_html=True,
+            )
+        with next_col:
+            if st.button(
+                "შემდეგი ▶",
+                key=f"{page_key}_next",
+                disabled=page >= total_pages - 1,
+                use_container_width=True,
+            ):
+                st.session_state[page_key] = page + 1
+                st.rerun()
+
+
+def render_responsive_table(
+    df: pd.DataFrame,
+    style_func,
+    page_key: str,
+    *,
+    table_key: str | None = None,
+    on_select: str | None = None,
+    selection_mode: str | None = None,
+    column_config: dict | None = None,
+) -> int:
+    """Render up to 10 rows per page with adaptive height and styled cells."""
+    page_df, page, total_pages = paginate_df(df, page_key)
+    widget_kwargs: dict = {
+        "use_container_width": True,
+        "hide_index": True,
+        "height": table_height(page_df),
+    }
+    if table_key:
+        widget_kwargs["key"] = table_key
+    if column_config:
+        widget_kwargs["column_config"] = column_config
+    if on_select:
+        widget_kwargs["on_select"] = on_select
+    if selection_mode:
+        widget_kwargs["selection_mode"] = selection_mode
+
+    st.dataframe(style_func(page_df), **widget_kwargs)
+    render_table_pagination(page_key, page, total_pages, len(df))
+    return page
 
 
 @st.dialog("ახალი პროდუქტის დამატება", on_dismiss=_dismiss_new_product_dialog)
@@ -475,7 +941,7 @@ def build_products_df(products: list[dict]) -> pd.DataFrame:
     )
 
 
-def get_selected_product_id(products: list[dict]) -> int | None:
+def get_selected_product_id(products: list[dict], page: int = 0) -> int | None:
     state = st.session_state.get(PRODUCTS_TABLE_KEY)
     if state is None:
         return None
@@ -488,7 +954,7 @@ def get_selected_product_id(products: list[dict]) -> int | None:
     if not rows:
         return None
 
-    row_idx = rows[0]
+    row_idx = page * TABLE_PAGE_SIZE + rows[0]
     if row_idx < 0 or row_idx >= len(products):
         return None
 
@@ -643,7 +1109,7 @@ def build_active_orders_df(orders: list[dict]) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
-def get_selected_order_id(orders: list[dict]) -> int | None:
+def get_selected_order_id(orders: list[dict], page: int = 0) -> int | None:
     state = st.session_state.get(ACTIVE_ORDERS_TABLE_KEY)
     if state is None:
         return None
@@ -656,7 +1122,7 @@ def get_selected_order_id(orders: list[dict]) -> int | None:
     if not rows:
         return None
 
-    row_idx = rows[0]
+    row_idx = page * TABLE_PAGE_SIZE + rows[0]
     if row_idx < 0 or row_idx >= len(orders):
         return None
 
@@ -697,13 +1163,13 @@ def render_selected_order_details(order: dict):
     )
 
     render_order_card_header(order, collected)
-    col_a, col_b, col_c = st.columns(3)
-    with col_a:
+    info_left, info_right = st.columns(2)
+    with info_left:
         st.write("ტელეფონი", order["phone"])
         st.write("მისამართი", order["address"])
         st.metric("კლიენტის გადასახდელი", format_currency(collected))
         st.metric("Net Revenue", format_currency(net_revenue))
-    with col_b:
+    with info_right:
         st.write("პროდუქტები", product_summary)
         st.write("თარიღი", order["created_at"][:16])
         discount = order.get("total_discount", 0) or 0
@@ -712,29 +1178,13 @@ def render_selected_order_details(order: dict):
             st.write("ფასდაკლება", format_currency(discount))
         if courier_cost > 0:
             st.write("კურიერის ხარჯი", format_currency(courier_cost))
-    with col_c:
-        new_status = st.selectbox(
-            "სტატუსის შეცვლა",
-            db.ORDER_STATUSES,
-            index=db.ORDER_STATUSES.index(order["status"]),
-            key=f"status_{order['id']}",
-        )
-        new_payment = st.selectbox(
-            "გადახდის სტატუსის შეცვლა",
-            db.PAYMENT_STATUSES,
-            index=db.PAYMENT_STATUSES.index(order["payment_status"]),
-            key=f"payment_{order['id']}",
-        )
-        if st.button("სტატუსის განახლება", key=f"update_{order['id']}", type="primary"):
-            try:
-                if new_status != order["status"]:
-                    db.update_order_status(order["id"], new_status)
-                if new_payment != order["payment_status"]:
-                    db.update_payment_status(order["id"], new_payment)
-                st.success("შეკვეთის სტატუსი განახლდა!")
-                st.rerun()
-            except ValueError as e:
-                st.error(str(e))
+
+    st.divider()
+    status_col, payment_col = st.columns(2)
+    with status_col:
+        render_order_status_pills(order)
+    with payment_col:
+        render_payment_status_pills(order)
 
 
 def _dismiss_new_order_dialog():
@@ -855,7 +1305,12 @@ def create_new_order_dialog():
                 for item in st.session_state.cart_items
             ]
         )
-        st.dataframe(cart_df, use_container_width=True, hide_index=True)
+        st.dataframe(
+            cart_df,
+            use_container_width=True,
+            hide_index=True,
+            height=table_height(cart_df),
+        )
 
         totals = calc_cart_totals(
             st.session_state.cart_items, float(actual_delivery_cost)
@@ -889,11 +1344,22 @@ def create_new_order_dialog():
 
 
 def render_header():
-    if LOGO_PATH.exists():
-        logo_col, title_col = st.columns([1, 4], vertical_alignment="center")
-        with logo_col:
-            st.image(str(LOGO_PATH), width=200)
-        with title_col:
+    with st.container(border=True):
+        if LOGO_PATH.exists():
+            logo_col, title_col = st.columns([1, 4], vertical_alignment="center")
+            with logo_col:
+                st.image(str(LOGO_PATH), width=180)
+            with title_col:
+                st.markdown('<p class="brand-title">Samarago</p>', unsafe_allow_html=True)
+                st.markdown(
+                    '<p class="brand-subtitle">Facebook გაყიდვების მართვა</p>',
+                    unsafe_allow_html=True,
+                )
+                st.markdown(
+                    '<p class="brand-caption">პროდუქტები, შეკვეთები და სტატისტიკა ერთ ადგილას</p>',
+                    unsafe_allow_html=True,
+                )
+        else:
             st.markdown('<p class="brand-title">Samarago</p>', unsafe_allow_html=True)
             st.markdown(
                 '<p class="brand-subtitle">Facebook გაყიდვების მართვა</p>',
@@ -903,11 +1369,6 @@ def render_header():
                 '<p class="brand-caption">პროდუქტები, შეკვეთები და სტატისტიკა ერთ ადგილას</p>',
                 unsafe_allow_html=True,
             )
-    else:
-        st.title("Samarago — Facebook გაყიდვების მართვა")
-        st.caption("პროდუქტები, შეკვეთები და სტატისტიკა ერთ ადგილას")
-
-    st.divider()
 
 
 def process_overdue_telegram_notifications():
@@ -924,92 +1385,140 @@ def render_overdue_payment_alerts():
     if not overdue_orders:
         return
 
-    for order in overdue_orders:
-        order_id = int(order["id"])
-        alert_col, action_col = st.columns([5, 1])
-        with alert_col:
-            st.error(
-                "⚠️ ყურადღება: "
-                f"შეკვეთა #{format_order_id(order_id)}-ის "
-                f"(კლიენტი: {order['customer_name']}) გადახდის 7-დღიანი ვადა ამოიწურა!"
+    with st.container(border=True):
+        section_title("გადახდის გაფრთხილებები")
+        for order in overdue_orders:
+            order_id = int(order["id"])
+            alert_col, action_col = st.columns([5, 1])
+            with alert_col:
+                st.error(
+                    "⚠️ ყურადღება: "
+                    f"შეკვეთა #{format_order_id(order_id)}-ის "
+                    f"(კლიენტი: {order['customer_name']}) გადახდის 7-დღიანი ვადა ამოიწურა!"
+                )
+            with action_col:
+                if st.button(
+                    "გავეცანი",
+                    key=f"ack_payment_alert_{order_id}",
+                    use_container_width=True,
+                ):
+                    try:
+                        db.acknowledge_payment_alert(order_id)
+                        st.rerun()
+                    except ValueError as e:
+                        st.warning(str(e))
+
+
+def _dashboard_period_bounds() -> tuple[datetime, datetime]:
+    period = st.session_state.get("dashboard_period", "კვირა")
+    month = (
+        st.session_state.get("dashboard_month", datetime.now().month)
+        if period == "თვე"
+        else None
+    )
+    return db.get_dashboard_period_bounds(period, month=month)
+
+
+def render_dashboard_period_filters():
+    with st.container(border=True):
+        section_title("პერიოდი")
+        filter_cols = st.columns([3, 2])
+        with filter_cols[0]:
+            st.radio(
+                "პერიოდი",
+                options=DASHBOARD_PERIOD_OPTIONS,
+                horizontal=True,
+                key="dashboard_period",
             )
-        with action_col:
-            st.write("")
-            if st.button(
-                "გავეცანი",
-                key=f"ack_payment_alert_{order_id}",
-                use_container_width=True,
-            ):
-                try:
-                    db.acknowledge_payment_alert(order_id)
-                    st.rerun()
-                except ValueError as e:
-                    st.warning(str(e))
+        with filter_cols[1]:
+            if st.session_state.get("dashboard_period") == "თვე":
+                st.selectbox(
+                    "თვე",
+                    options=list(GEORGIAN_MONTHS.keys()),
+                    format_func=lambda month: GEORGIAN_MONTHS[month],
+                    index=datetime.now().month - 1,
+                    key="dashboard_month",
+                )
 
 
 def tab_dashboard():
-    metrics = db.get_dashboard_metrics()
-    cols = st.columns(4)
-    for col, (label, value) in zip(
-        cols,
-        [
-            ("მთლიანი გაყიდვები", format_currency(metrics["total_sales"])),
-            ("მთლიანი მოგება", format_currency(metrics["total_profit"])),
-            ("მოლოდინში შეკვეთები", str(metrics["pending_orders"])),
-            ("გადაუხდელი შეკვეთები", str(metrics["unpaid_orders"])),
-        ],
-    ):
-        with col:
-            st.metric(label, value)
+    render_dashboard_period_filters()
+    period_start, period_end = _dashboard_period_bounds()
+    metrics = db.get_dashboard_metrics(period_start, period_end)
 
-    st.divider()
-    st.subheader("📋 ბოლო შეკვეთები")
+    with st.container(border=True):
+        section_title("საერთო სტატისტიკა")
+        metric_cols = st.columns(5)
+        for col, (label, value) in zip(
+            metric_cols,
+            [
+                ("გადახდილი თანხა", format_currency(metrics["paid_revenue"])),
+                ("მოლოდინში", format_currency(metrics["pending_revenue"])),
+                ("მთლიანი მოგება", format_currency(metrics["total_profit"])),
+                ("მოლოდინში შეკვეთები", str(metrics["pending_orders"])),
+                ("გადაუხდელი შეკვეთები", str(metrics["unpaid_orders"])),
+            ],
+        ):
+            with col:
+                st.metric(label, value)
 
-    orders = db.get_orders()[:10]
-    if not orders:
-        st.info("შეკვეთები ჯერ არ არის დამატებული.")
-        return
+    with st.container(border=True):
+        section_title("ბოლო შეკვეთები")
+        orders = db.filter_orders_by_period(
+            db.get_orders(),
+            period_start,
+            period_end,
+        )
+        if not orders:
+            st.info("ამ პერიოდში შეკვეთები ჯერ არ არის.")
+            return
 
-    df = pd.DataFrame(build_orders_rows(orders))
-    st.dataframe(style_orders_dataframe(df), width="stretch", hide_index=True)
+        df = pd.DataFrame(build_orders_rows(orders))
+        render_responsive_table(
+            df,
+            style_orders_dataframe,
+            "dashboard_recent_orders_page",
+            column_config=orders_table_column_config(),
+        )
 
 
 def tab_products():
-    if st.button("➕ ახალი პროდუქტის დამატება", type="primary"):
-        st.session_state.show_new_product_dialog = True
-        st.rerun()
+    with st.container(border=True):
+        if st.button("➕ ახალი პროდუქტის დამატება", type="primary", use_container_width=True):
+            st.session_state.show_new_product_dialog = True
+            st.rerun()
 
-    st.subheader("📦 პროდუქტების სია")
+    with st.container(border=True):
+        section_title("პროდუქტების სია")
+        products = db.get_all_products()
+        if not products:
+            st.info("პროდუქტები ჯერ არ არის დამატებული.")
+        else:
+            products_df = build_products_df(products)
+            products_page = render_responsive_table(
+                products_df,
+                style_products_dataframe,
+                "products_page",
+                table_key=PRODUCTS_TABLE_KEY,
+                on_select="rerun",
+                selection_mode="single-row",
+                column_config=products_table_column_config(),
+            )
 
-    products = db.get_all_products()
-    if not products:
-        st.info("პროდუქტები ჯერ არ არის დამატებული.")
-    else:
-        products_df = build_products_df(products)
-
-        st.dataframe(
-            style_products_dataframe(products_df),
-            on_select="rerun",
-            selection_mode="single-row",
-            key=PRODUCTS_TABLE_KEY,
-            use_container_width=True,
-            hide_index=True,
-        )
-
-        selected_product_id = get_selected_product_id(products)
-        if selected_product_id is not None:
-            btn_edit, btn_delete = st.columns(2)
-            with btn_edit:
-                if st.button("📝 რედაქტირება", use_container_width=True, key="product_edit_btn"):
-                    st.session_state.product_action = "edit"
-                    st.session_state.product_action_id = selected_product_id
-                    st.session_state.pop("product_edit_pending", None)
-                    st.rerun()
-            with btn_delete:
-                if st.button("❌ წაშლა", use_container_width=True, key="product_delete_btn"):
-                    st.session_state.product_action = "delete"
-                    st.session_state.product_action_id = selected_product_id
-                    st.rerun()
+            selected_product_id = get_selected_product_id(products, products_page)
+            if selected_product_id is not None:
+                btn_edit, btn_delete = st.columns(2)
+                with btn_edit:
+                    if st.button("📝 რედაქტირება", use_container_width=True, key="product_edit_btn"):
+                        st.session_state.product_action = "edit"
+                        st.session_state.product_action_id = selected_product_id
+                        st.session_state.pop("product_edit_pending", None)
+                        st.rerun()
+                with btn_delete:
+                    if st.button("❌ წაშლა", use_container_width=True, key="product_delete_btn"):
+                        st.session_state.product_action = "delete"
+                        st.session_state.product_action_id = selected_product_id
+                        st.rerun()
 
     if st.session_state.get("show_new_product_dialog"):
         add_new_product_dialog()
@@ -1021,82 +1530,87 @@ def tab_products():
 
 
 def tab_orders():
-    if st.button("➕ ახალი შეკვეთის გაფორმება", type="primary"):
-        st.session_state.show_new_order_dialog = True
-        st.rerun()
+    with st.container(border=True):
+        if st.button("➕ ახალი შეკვეთის გაფორმება", type="primary", use_container_width=True):
+            st.session_state.show_new_order_dialog = True
+            st.rerun()
 
     all_orders = db.get_orders() + db.get_deleted_orders()
     active_orders, completed_orders, deleted_orders = split_orders_by_category(all_orders)
 
-    tab_active, tab_completed, tab_deleted = st.tabs(
-        ["🟢 აქტიური შეკვეთები", "✅ დასრულებული", "🗑️ წაშლილი"]
-    )
+    with st.container(border=True):
+        section_title("შეკვეთების მართვა")
+        tab_active, tab_completed, tab_deleted = st.tabs(
+            ["🟢 აქტიური შეკვეთები", "✅ დასრულებული", "🗑️ წაშლილი"]
+        )
 
-    with tab_active:
-        if not active_orders:
-            st.info("აქტიური შეკვეთები ჯერ არ არის.")
-        else:
-            orders_df = build_active_orders_df(active_orders).drop(columns=["id"])
-
-            st.dataframe(
-                style_active_orders_dataframe(orders_df),
-                on_select="rerun",
-                selection_mode="single-row",
-                key=ACTIVE_ORDERS_TABLE_KEY,
-                use_container_width=True,
-                hide_index=True,
-            )
-
-            selected_order_id = get_selected_order_id(active_orders)
-            if selected_order_id is not None:
-                btn_edit, btn_delete = st.columns(2)
-                with btn_edit:
-                    if st.button(
-                        "📝 რედაქტირება",
-                        use_container_width=True,
-                        key="order_edit_btn",
-                    ):
-                        st.session_state.order_action = "edit"
-                        st.session_state.order_action_id = selected_order_id
-                        st.session_state.pop("order_edit_pending", None)
-                        st.rerun()
-                with btn_delete:
-                    if st.button(
-                        "❌ შეკვეთის წაშლა",
-                        use_container_width=True,
-                        key="order_delete_btn",
-                    ):
-                        st.session_state.order_action = "delete"
-                        st.session_state.order_action_id = selected_order_id
-                        st.rerun()
-
-                selected_order = next(
-                    o for o in active_orders if o["id"] == selected_order_id
+        with tab_active:
+            if not active_orders:
+                st.info("აქტიური შეკვეთები ჯერ არ არის.")
+            else:
+                orders_df = build_active_orders_df(active_orders).drop(columns=["id"])
+                active_orders_page = render_responsive_table(
+                    orders_df,
+                    style_active_orders_dataframe,
+                    "active_orders_page",
+                    table_key=ACTIVE_ORDERS_TABLE_KEY,
+                    on_select="rerun",
+                    selection_mode="single-row",
+                    column_config=orders_table_column_config(),
                 )
-                with st.expander("არჩეული შეკვეთის დეტალები და სტატუსი", expanded=True):
-                    render_selected_order_details(selected_order)
 
-    with tab_completed:
-        if not completed_orders:
-            st.info("დასრულებული შეკვეთები ჯერ არ არის.")
-        else:
-            completed_df = build_active_orders_df(completed_orders).drop(columns=["id"])
-            st.dataframe(
-                style_orders_dataframe(completed_df),
-                use_container_width=True,
-                hide_index=True,
-            )
+                selected_order_id = get_selected_order_id(active_orders, active_orders_page)
+                if selected_order_id is not None:
+                    btn_edit, btn_delete = st.columns(2)
+                    with btn_edit:
+                        if st.button(
+                            "📝 რედაქტირება",
+                            use_container_width=True,
+                            key="order_edit_btn",
+                        ):
+                            st.session_state.order_action = "edit"
+                            st.session_state.order_action_id = selected_order_id
+                            st.session_state.pop("order_edit_pending", None)
+                            st.rerun()
+                    with btn_delete:
+                        if st.button(
+                            "❌ შეკვეთის წაშლა",
+                            use_container_width=True,
+                            key="order_delete_btn",
+                        ):
+                            st.session_state.order_action = "delete"
+                            st.session_state.order_action_id = selected_order_id
+                            st.rerun()
 
-    with tab_deleted:
-        if not deleted_orders:
-            st.info("წაშლილი შეკვეთები ჯერ არ არის.")
-        else:
-            archive_df = pd.DataFrame(build_deleted_archive_rows(deleted_orders))
-            st.dataframe(
-                style_orders_dataframe(archive_df),
-                use_container_width=True,
-                hide_index=True,
-            )
+                    selected_order = next(
+                        o for o in active_orders if o["id"] == selected_order_id
+                    )
+                    with st.expander("არჩეული შეკვეთის დეტალები და სტატუსი", expanded=True):
+                        render_selected_order_details(selected_order)
+
+        with tab_completed:
+            if not completed_orders:
+                st.info("დასრულებული შეკვეთები ჯერ არ არის.")
+            else:
+                completed_df = build_active_orders_df(completed_orders).drop(columns=["id"])
+                render_responsive_table(
+                    completed_df,
+                    style_orders_dataframe,
+                    "completed_orders_page",
+                    column_config=orders_table_column_config(),
+                )
+
+        with tab_deleted:
+            if not deleted_orders:
+                st.info("წაშლილი შეკვეთები ჯერ არ არის.")
+            else:
+                archive_df = pd.DataFrame(build_deleted_archive_rows(deleted_orders))
+                render_responsive_table(
+                    archive_df,
+                    style_orders_dataframe,
+                    "deleted_orders_page",
+                    column_config=orders_table_column_config(),
+                )
 
     if st.session_state.get("show_new_order_dialog"):
         create_new_order_dialog()
@@ -1107,19 +1621,19 @@ def tab_orders():
         edit_order_customer_dialog(int(st.session_state.order_action_id))
 
 
-def render_tab_navigation(current_tab: str) -> str:
-    selected = st.radio(
-        "ნავიგაცია",
-        options=TAB_OPTIONS,
-        index=TAB_OPTIONS.index(current_tab),
-        format_func=lambda tab: TAB_LABELS[tab],
-        horizontal=True,
-        label_visibility="collapsed",
-    )
-    if selected != current_tab:
-        st.query_params["tab"] = selected
-        st.rerun()
-    return selected
+def render_main_navigation():
+    if "active_tab" not in st.session_state:
+        st.session_state.active_tab = "დაფა"
+
+    with st.container(border=True):
+        st.segmented_control(
+            "ნავიგაცია",
+            options=TAB_OPTIONS,
+            format_func=lambda tab: TAB_LABELS[tab],
+            label_visibility="collapsed",
+            width="stretch",
+            key="active_tab",
+        )
 
 
 def main():
@@ -1128,20 +1642,13 @@ def main():
     process_overdue_telegram_notifications()
     render_overdue_payment_alerts()
 
-    tab_param = st.query_params.get("tab", "დაფა")
-    if isinstance(tab_param, list):
-        tab_param = tab_param[0] if tab_param else "დაფა"
-    current_tab = tab_param if tab_param in TAB_OPTIONS else "დაფა"
-    if st.query_params.get("tab") != current_tab:
-        st.query_params["tab"] = current_tab
+    render_main_navigation()
 
-    active_tab = render_tab_navigation(current_tab)
-
-    if active_tab == "დაფა":
+    if st.session_state.active_tab == "დაფა":
         tab_dashboard()
-    elif active_tab == "პროდუქტები":
+    elif st.session_state.active_tab == "პროდუქტები":
         tab_products()
-    else:
+    elif st.session_state.active_tab == "შეკვეთები":
         tab_orders()
 
 
